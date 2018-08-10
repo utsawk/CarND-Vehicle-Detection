@@ -79,7 +79,7 @@ The overlapping boxes can be then combined via a heatmap thresholding to constru
 
 ### Video Implementation
 
-Here's a [link to my video result](./project_video_output.mp4) with only detected vehicles and here is a [link to my video result](./lane_and_vehicles.mp4) combined with lane detection from last project. I have written python files for combining the approaches because doing everything on Jupyter notebook may not be the best approach.
+Here's a [link to my video result](./project_video_output.mp4) with only detected vehicles and here is a [link to my video result](./lane_and_vehicles.mp4) combined with lane detection from last project. Note that I also do camera calibration and distortion correction when combining lane and vehicle detection. I have written python files for combining the approaches because doing everything on Jupyter notebook may not be the best approach.
 
 
 #### Dealing with false positives
