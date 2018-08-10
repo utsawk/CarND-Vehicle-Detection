@@ -299,7 +299,7 @@ if __name__ == "__main__":
         print("Oops, no trained model found. Please run train_svm.py first. Exiting.....")
         sys.exit()
 
-    output = 'output.mp4'
+    output = 'lane_and_vehicles.mp4'
 
     box_list_history = bounding_box(10)
     threshold = 4

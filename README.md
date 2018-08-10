@@ -40,7 +40,7 @@ Using the trained SVM model, lane lines and vehicles can be detected by executin
 ```sh
 python lane_lines_and_vehicle_detection.py
 ```
-The output is saved in a file named "output.mp4".
+The output is saved in a file named "lane_and_vehicles.mp4".
 
 ### Feature extraction
 
