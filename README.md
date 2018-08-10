@@ -1,19 +1,9 @@
-# Vehicle Detection
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
+## Writeup Template
+### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
 
-
-In this project, your goal is to write a software pipeline to detect vehicles in a video (start with the test_video.mp4 and later implement on full project_video.mp4), but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
-
-Creating a great writeup:
 ---
-A great writeup should include the rubric points as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
 
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You can submit your writeup in markdown or use another method and submit a pdf instead.
-
-The Project
----
+**Vehicle Detection Project**
 
 The goals / steps of this project are the following:
 
@@ -24,14 +14,82 @@ The goals / steps of this project are the following:
 * Run your pipeline on a video stream (start with the test_video.mp4 and later implement on full project_video.mp4) and create a heat map of recurring detections frame by frame to reject outliers and follow detected vehicles.
 * Estimate a bounding box for vehicles detected.
 
-Here are links to the labeled data for [vehicle](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip) and [non-vehicle](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip) examples to train your classifier.  These example images come from a combination of the [GTI vehicle image database](http://www.gti.ssr.upm.es/data/Vehicle_database.html), the [KITTI vision benchmark suite](http://www.cvlibs.net/datasets/kitti/), and examples extracted from the project video itself.   You are welcome and encouraged to take advantage of the recently released [Udacity labeled dataset](https://github.com/udacity/self-driving-car/tree/master/annotations) to augment your training data.  
+[//]: # (Image References)
+[image1]: ./output_images/image0000.png "vehicle image"
+[image2]: ./output_images/extra14.png "non-vehicle image"
+[image3]: ./output_images/hog.png "hog features"
+[image4]: ./output_images/heatmap.png
 
-Some example images for testing your pipeline on single frames are located in the `test_images` folder.  To help the reviewer examine your work, please save examples of the output from each stage of your pipeline in the folder called `ouput_images`, and include them in your writeup for the project by describing what each image shows.    The video called `project_video.mp4` is the video your pipeline should work well on.  
 
-**As an optional challenge** Once you have a working pipeline for vehicle detection, add in your lane-finding algorithm from the last project to do simultaneous lane-finding and vehicle detection!
+### Files
+My project includes the following files:
+* P5.ipynb (Jupyter notebook) containing the project code related of detection of vehicles only. This file can be used to train the SVM and run it on a video to detect vehicles. Jupyter notebook is used to show all code and visualizations in the same document. To run the project, its preferable to use the python files provided because it combines both lane detection and vehicle detection
+* train_svm.py containing code to train the svm
+* lane_lines_and_vehicle_detection.py contains code to detect lane lines and vehicles
+* utils_lane_finding.py contains utility functions to detect lane lines
+* utils_vehicle_detection.py contains utility functions for detecting cars/vehicles on the road
 
-**If you're feeling ambitious** (also totally optional though), don't stop there!  We encourage you to go out and take video of your own, and show us how you would implement this project on a new video!
+### Training the model
+The data to train the model can be downloaded from here (vehicles) [here](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip) and here (non-vehicles) [here](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip). The given SVM can be trained by executing
+```sh
+python train_svm.py
+```
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+### Detecting lane lines and vehicles
+Using the trained SVM model, lane lines and vehicles can be detected by executing
+```sh
+python lane_lines_and_vehicle_detection.py
+```
+The output is saved in a file named "output.mp4".
+
+### Feature extraction
+
+I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes.
+
+![alt text][image1]
+![alt text][image2]
+
+
+The code for feature extraction and training the classifier is in cell 5 of the IPython notebook. Hog feature extraction is done in the function get_hog_features() in cell 2 of the notebook. I decided to use the histogram of color and spatial binning feature because that gave me higher accuracy on the test data as compared to when the classifier was trained only using the HOG feature (~99% as compared to ~96%). An example of the hog feature is shown in figure below for "YUV" color space, HOG parameters of `orientations=12`, `pixels_per_cell = (16, 16)` and `cells_per_block = (2,2)` 
+
+![alt text][image3]
+
+#### Final choice of HOG parameters.
+
+I experimented with different color spaces and chose "YUV" though some of the other color spaces (like YCrCb, HSV, etc.) also gave very similar results for test accuracy. I tried various combinations of parameters and converged on using `pixels_per_cell = (16, 16)` because increasing from the lecture suggested valye of `(8,8)` did not affect the performance while at the same time running much faster both when training and when detecting vehicles in the video. I also increased the number of orientations to 12 because it gave marginally better test accuracy. 
+
+### SVM
+
+I trained a linear SVM after normalizing the training set using the sklearn StandardScaler() utility class that subtracts the mean and scales the dataset to make it unit variance. Using the above mentioned parameters, I got an accuracy of 98.9% on the test set. The code for this is in cell 5 of the notebook. 
+
+### Sliding Window Search
+
+Instead of extracting hog features independently for each window selection, I used hog subsampling like described in the class notes. The code of this is in the function find_cars() in cell 6 of the notebook. I used three window sizes for my search as shown in cell 15 of the notebook:
+* scale 1.5, ystart = 400, y_stop = 500
+* scale 2.5, ystart = 400, y_stop = 575
+* scale 3.5, ystart = 400, y_stop = 620
+
+This gives a series of boxes corresponding to the overlapping windows used to look for vehicles.  
+
+### Heatmap & False Positives
+
+The overlapping boxes can be then combined via a heatmap thresholding to construct one box showing detected vehicle on the road. The thresholding helps remove false positives as well. An example of detected boxes around vehicles is given in figure below.
+![alt text][image4]
+---
+
+### Video Implementation
+
+Here's a [link to my video result](./project_video_output.mp4) with only detected vehicles ahd here is a [link to my video result](./output.mp4) combined with lane detection from last project. I have written python files for combining the approaches because doing everything on Jupyter notebook may not be the best approach.
+
+
+#### Dealing with false positives
+
+To deal with false positives on the video is easier than in individual images. I create a class called bounding_box() in cell 15 to track boxes over multiple frames. I keep track of the last 10 frames and bounding boxes for those 10 images. I threshold the heatmap at 4, which is obtained empirically. Since false positives elsewhere only occur in some frames, this thresholding kills the false positives while smoothing the output boxes across frames as well.
+
+
+---
+
+### Discussion
+
+I started looking at the deep learning approaches after spending considerable time on the computer vision-SVM approach to solve this problem and it seems that you can possibly run it way faster than he approach outlined here. In the interest of time, I decided to submit the project as is and continue exploring the deep learning approach. I feel that the thresholding is going to going to definitely fail in a lot of corner cases. I also tried exploring SVM tricks to limit the number of false postivies and tired playing around with C and gamma to shift the hyperplane separating the two classes to limit false positives, but did not get very promising results.  
 
