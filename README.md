@@ -30,7 +30,7 @@ My project includes the following files:
 * utils_vehicle_detection.py contains utility functions for detecting cars/vehicles on the road
 
 ### Training the model
-The data to train the model can be downloaded from here (vehicles) [here](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip) and here (non-vehicles) [here](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip). The given SVM can be trained by executing
+The data to train the model can be downloaded from [vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip) and [non-vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip). The given SVM can be trained by executing
 ```sh
 python train_svm.py
 ```
@@ -50,13 +50,13 @@ I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an 
 ![alt text][image2]
 
 
-The code for feature extraction and training the classifier is in cell 5 of the IPython notebook. Hog feature extraction is done in the function get_hog_features() in cell 2 of the notebook. I decided to use the histogram of color and spatial binning feature because that gave me higher accuracy on the test data as compared to when the classifier was trained only using the HOG feature (~99% as compared to ~96%). An example of the hog feature is shown in figure below for "YUV" color space, HOG parameters of `orientations=12`, `pixels_per_cell = (16, 16)` and `cells_per_block = (2,2)` 
+The code for feature extraction and training the classifier is in cell 5 of the IPython notebook. Hog feature extraction is done in the function get_hog_features() in cell 2 of the notebook. I decided to use the histogram of color and spatial binning feature because that gave me higher accuracy on the test data as compared to when the classifier was trained only using the HOG feature (~99% as compared to ~96%). An example of the hog feature is shown in figure below for "YUV" color space, HOG parameters of `orientations=12`, `pixels_per_cell = (16, 16)` and `cells_per_block = (2,2)` are used.
 
 ![alt text][image3]
 
 #### Final choice of HOG parameters.
 
-I experimented with different color spaces and chose "YUV" though some of the other color spaces (like YCrCb, HSV, etc.) also gave very similar results for test accuracy. I tried various combinations of parameters and converged on using `pixels_per_cell = (16, 16)` because increasing from the lecture suggested valye of `(8,8)` did not affect the performance while at the same time running much faster both when training and when detecting vehicles in the video. I also increased the number of orientations to 12 because it gave marginally better test accuracy. 
+I experimented with different color spaces and chose "YUV" though some of the other color spaces (like YCrCb, HSV, etc.) also gave very similar results. I tried various combinations of parameters and converged on using `pixels_per_cell = (16, 16)` because increasing from the lecture suggested value of `(8,8)` did not affect the performance while at the same time running much faster both when training and when detecting vehicles in the video. I also increased the number of orientations to 12 because it gave marginally better test accuracy. 
 
 ### SVM
 
@@ -72,8 +72,8 @@ Instead of extracting hog features independently for each window selection, I us
 This gives a series of boxes corresponding to the overlapping windows used to look for vehicles.  
 
 ### Heatmap & False Positives
-
 The overlapping boxes can be then combined via a heatmap thresholding to construct one box showing detected vehicle on the road. The thresholding helps remove false positives as well. An example of detected boxes around vehicles is given in figure below.
+
 ![alt text][image4]
 ---
 
@@ -84,12 +84,12 @@ Here's a [link to my video result](./project_video_output.mp4) with only detecte
 
 #### Dealing with false positives
 
-To deal with false positives on the video is easier than in individual images. I create a class called bounding_box() in cell 15 to track boxes over multiple frames. I keep track of the last 10 frames and bounding boxes for those 10 images. I threshold the heatmap at 4, which is obtained empirically. Since false positives elsewhere only occur in some frames, this thresholding kills the false positives while smoothing the output boxes across frames as well.
+To deal with false positives on the video is easier than in individual images. I create a class called bounding_box() in cell 15 to track boxes over multiple frames. I keep track of the last 10 frames and bounding boxes for those 10 images. I threshold the heatmap at 4, which is obtained empirically. Since false positives occur only in some frames, this thresholding kills the false positives while smoothing the output boxes across frames as well.
 
 
 ---
 
 ### Discussion
 
-I started looking at the deep learning approaches after spending considerable time on the computer vision-SVM approach to solve this problem and it seems that you can possibly run it way faster than he approach outlined here. In the interest of time, I decided to submit the project as is and continue exploring the deep learning approach. I feel that the thresholding is going to going to definitely fail in a lot of corner cases. I also tried exploring SVM tricks to limit the number of false postivies and tired playing around with C and gamma to shift the hyperplane separating the two classes to limit false positives, but did not get very promising results.  
+I started looking at the deep learning approaches after spending considerable time on the computer vision-SVM approach to solve this problem and it seems that you can possibly run it way faster than the approach outlined here. In the interest of time, I decided to submit the project as is and continue exploring the deep learning approach. I feel that the thresholding is going to definitely fail in a lot of corner cases. I also tried exploring SVM tricks to limit the number of false postivies and tried playing around with C and gamma to shift the hyperplane separating the two classes to limit false positives, but was not successful doing so.   
 
