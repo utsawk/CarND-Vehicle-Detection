@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from sklearn.preprocessing import StandardScaler
+
 from utils_vehicle_detection import *
 
 
