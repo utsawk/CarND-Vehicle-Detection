@@ -1,7 +1,8 @@
-from utils_vehicle_detection import *
-from utils_lane_finding import *
 import glob
 import sys
+
+from utils_vehicle_detection import *
+from utils_lane_finding import *
     
 
 def fit_polynomial(binary_warped, plot = False):
